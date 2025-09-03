@@ -4,5 +4,5 @@ export class ElectoralSlate {
 
    numberVote: number;
 
-   namesCandites: string[];
+   candidateNames: string[];
 }

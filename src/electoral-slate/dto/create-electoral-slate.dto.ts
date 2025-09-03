@@ -8,8 +8,8 @@ export class CreateElectoralSlateDto {
   @IsInt({ message: 'numberVote must be an integer' })
   readonly numberVote: number;
 
-  @IsArray({ message: 'namesCandites must be an array' })
-  @ArrayNotEmpty({ message: 'namesCandites cannot be empty' })
+  @IsArray({ message: 'candidateNames must be an array' })
+  @ArrayNotEmpty({ message: 'candidateNames cannot be empty' })
   @IsString({ each: true, message: 'Each candidate name must be a string' })
-  readonly namesCandites: string[];
+  readonly candidateNames: string[];
 }
