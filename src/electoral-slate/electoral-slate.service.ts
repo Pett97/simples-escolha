@@ -1,42 +1,53 @@
 import { Injectable } from '@nestjs/common';
-import { ElectoralSlate } from 'generated/prisma';
-import { PrismaService } from 'src/database/prisma.service';
+import { ElectoralSlate } from '@prisma/client';
 
+import { PrismaService } from '../database/prisma.service';
 import { CreateElectoralSlateDto } from './dto/create-electoral-slate.dto';
 import { UpdateElectoralSlateDto } from './dto/update-electoral-slate.dto';
 
 @Injectable()
 export class ElectoralSlateService {
   constructor(private prisma: PrismaService) {}
-  
 
-  create(createElectoralSlateDto: CreateElectoralSlateDto) {
-    return createElectoralSlateDto;
+  private async findByIdOrThrow(id: number): Promise<ElectoralSlate> {
+    return this.prisma.electoralSlate.findFirstOrThrow({ where: { id } });
+  }
+
+  private async handleErrors<T>(fn: () => Promise<T>, message = 'Erro ao processar requisição'): Promise<T | { message: string }> {
+    try {
+      return await fn();
+    } catch (error) {
+      console.error(message, error);
+      return { message };
+    }
+  }
+
+  async create(createDto: CreateElectoralSlateDto): Promise<ElectoralSlate | { message: string }> {
+    return this.handleErrors(() => this.prisma.electoralSlate.create({ data: createDto }), 'Erro ao criar chapa');
+  }
+
+  async findOne(id: number): Promise<ElectoralSlate | { message: string }> {
+    return this.handleErrors(() => this.findByIdOrThrow(id), 'Erro ao buscar chapa');
   }
 
   async findAll(): Promise<ElectoralSlate[] | { message: string }> {
-    try {
-      const electorals = await this.prisma.electoralSlate.findMany();
-
-      if (!electorals || electorals.length === 0) {
-        return { message: 'Nenhum registro encontrado' };
-      }
-
-      return electorals;
-    } catch (error) {
-      console.error('Erro no findAll:', error);
-      return { message: 'Erro ao buscar os registros' };
-    }
-  }
-  findOne(id: number) {
-    return `This action returns a #${id} electoralSlate`;
+    return this.handleErrors(async () => {
+      const data = await this.prisma.electoralSlate.findMany();
+      return data.length ? data : { message: 'Nenhuma chapa encontrada' };
+    }, 'Erro ao buscar chapas');
   }
 
-  update(id: number, updateElectoralSlateDto: UpdateElectoralSlateDto) {
-    return `This action updates a #${id} electoralSlate`;
+  async update(id: number, updateDto: UpdateElectoralSlateDto): Promise<ElectoralSlate | { message: string }> {
+    return this.handleErrors(async () => {
+      await this.findByIdOrThrow(id); 
+      return this.prisma.electoralSlate.update({ where: { id }, data: updateDto });
+    }, 'Erro ao atualizar chapa');
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} electoralSlate`;
+  async remove(id: number): Promise<ElectoralSlate | { message: string }> {
+    return this.handleErrors(async () => {
+      await this.findByIdOrThrow(id); 
+      return this.prisma.electoralSlate.delete({ where: { id } });
+    }, 'Erro ao remover chapa');
   }
 }

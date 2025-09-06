@@ -14,7 +14,10 @@ datasource db {
 }
 
 model ElectoralSlate {
-  id    Int     @default(autoincrement()) @id
-  numberVote Int  @unique
-  candidateNames Json
+  id             Int   @id @default(autoincrement())
+  numberVote     Int   @unique      @map("number_vote")
+  candidate1 String @map("candidate_1")
+  candidate2 String? @map("candidate_2")
+
+  @@map("electoral_slate")
 }

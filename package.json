@@ -1,8 +1,8 @@
 {
   "name": "simples-escolha",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "uma pequena api para eleicoes",
+  "author": "Peterson Henrique de Padua",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

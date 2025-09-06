@@ -1,8 +1,6 @@
 export class ElectoralSlate {
-
    id: number;
-
    numberVote: number;
-
-   candidateNames: string[];
+   candidate1: String;
+   candidate2: String;
 }

@@ -1,15 +1,14 @@
-import { IsInt, IsArray, ArrayNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsInt, IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class CreateElectoralSlateDto {
-  @IsOptional()
-  @IsInt()
-  readonly id?: number;
-
-  @IsInt({ message: 'numberVote must be an integer' })
+  @IsInt({ message: 'numberVote :Número da chapa é obrigatório' })
   readonly numberVote: number;
 
-  @IsArray({ message: 'candidateNames must be an array' })
-  @ArrayNotEmpty({ message: 'candidateNames cannot be empty' })
-  @IsString({ each: true, message: 'Each candidate name must be a string' })
-  readonly candidateNames: string[];
+  @IsNotEmpty({ message: "candidate1:Nome do candidato 1 é obrigatório" })
+  @IsString({ message: "candidate1:Nome do candidato 1: apenas letras" })
+  readonly candidate1: string;
+
+  @IsOptional()
+  @IsString({ message: "candidate2: Nome do candidato 2: apenas letras" })
+  readonly candidate2?: string;
 }
