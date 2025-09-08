@@ -26,6 +26,11 @@ export class ElectoralSlateController {
   findByNumberVote(@Param('numberVote') numberVote: string) {
     return this.electoralSlateService.findByNumberVote(+numberVote);
   }
+  
+  @Get('by-election/:id')
+  findByElectionId(@Param('id') id:number){
+    return this.electoralSlateService.findByElectionId(+id);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateElectoralSlateDto: UpdateElectoralSlateDto) {
