@@ -14,10 +14,20 @@ datasource db {
 }
 
 model ElectoralSlate {
-  id             Int   @id @default(autoincrement())
-  numberVote     Int   @unique      @map("number_vote")
-  candidate1 String @map("candidate_1")
-  candidate2 String? @map("candidate_2")
-
+  id             Int       @id @default(autoincrement())
+  numberVote     Int       @unique      @map("number_vote")
+  candidate1     String    @map("candidate_1")
+  candidate2     String?   @map("candidate_2")
+  electionId     Int       
+  election Election @relation(fields: [electionId],references: [id])
+  
   @@map("electoral_slate")
+}
+
+model Election {
+   id         Int        @id @default(autoincrement())
+   votingDate DateTime   @map("voting_date")
+   maxVote    Int        @map("max_vote")
+   slates ElectoralSlate[]
+  @@map("election")    
 }

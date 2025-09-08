@@ -5,7 +5,7 @@ import { UpdateElectionDto } from './dto/update-election.dto';
 
 @Controller('election')
 export class ElectionController {
-  constructor(private readonly electionService: ElectionService) {}
+  constructor(private readonly electionService: ElectionService) { }
 
   @Post()
   create(@Body() createElectionDto: CreateElectionDto) {
@@ -20,6 +20,11 @@ export class ElectionController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.electionService.findOne(+id);
+  }
+
+  @Get('election-date/:startDate/:endDate')
+  findByDate(@Param() params: { startDate: string; endDate: string }) {
+    return this.electionService.findByDateRange(params.startDate, params.endDate);
   }
 
   @Patch(':id')
