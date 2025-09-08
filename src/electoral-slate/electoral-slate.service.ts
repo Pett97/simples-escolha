@@ -26,6 +26,13 @@ export class ElectoralSlateService {
     return this.handleErrors(() => this.prisma.electoralSlate.create({ data: createDto }), 'Erro ao criar chapa');
   }
 
+  async findByNumberVote(numberVote:number):Promise<ElectoralSlate | {message: string}>{
+    return this.handleErrors(async()=>{
+      const data = await this.prisma.electoralSlate.findFirstOrThrow({where :{numberVote}});
+       return data? data : {message : `Ǹehuma Chapa encontrada com numero ${numberVote}`};
+    });
+  };
+
   async findOne(id: number): Promise<ElectoralSlate | { message: string }> {
     return this.handleErrors(() => this.findByIdOrThrow(id), 'Erro ao buscar chapa');
   }
