@@ -2,16 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
 import { PrismaService } from 'src/database/prisma.service';
-import { Election } from '@prisma/client';
+import { Election, Token } from '@prisma/client';
+import { NanoIdService } from 'src/common/services/nanoIdService';
 
 
 @Injectable()
 export class ElectionService {
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private nanoId: NanoIdService) { }
 
   private async findByIdOrThrow(id: number): Promise<Election> {
     return this.prisma.election.findFirstOrThrow({ where: { id } });
+  }
+
+  private async getElectionMaxVote(id: number): Promise<number | { message: string }> {
+    return this.handleErrors(async () => {
+      const election = await this.findByIdOrThrow(id);
+      return election.maxVote;
+    }, `não foi encontrada eleicao com id${id}`)
   }
 
   private async handleErrors<T>(fn: () => Promise<T>, message = 'Erro ao processar requisição'): Promise<T | { message: string }> {
@@ -22,6 +30,23 @@ export class ElectionService {
       return { message };
     }
   }
+
+  async createTokensForElection(idElection: number) {
+    return this.handleErrors(async () => {
+      const maxVote = await this.getElectionMaxVote(idElection);
+      const totalTokens = Number(maxVote) || 7000;
+
+      const tokensData:any = Array.from({ length: totalTokens }).map(() => ({
+        hash: this.nanoId.generateId(16),
+        used: 0,
+        electionId:idElection,
+        dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // teste 7 dias 
+      }));
+
+      return this.prisma.token.createMany({ data: tokensData });
+    }, 'erro ao criar tokens');
+  }
+
   async create(createElectionDto: CreateElectionDto): Promise<Election | { message: string }> {
     return this.handleErrors(() => this.prisma.election.create({ data: createElectionDto }), 'erro ao criar eleicao');
   }

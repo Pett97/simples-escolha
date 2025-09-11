@@ -30,6 +30,7 @@ model Election {
    votingDate DateTime   @map("voting_date")
    maxVote    Int        @map("max_vote")
    slates ElectoralSlate[]
+   tokens Token[]
   @@map("election")    
 }
 
@@ -39,6 +40,8 @@ model Token{
      used           Int         @map("used")
      hash           String      @map("hash")
      votes Vote[]
+     electionId     Int         @map("id_election")
+     election Election          @relation(fields: [electionId],references: [id])
   @@map("token")  
 }
 
