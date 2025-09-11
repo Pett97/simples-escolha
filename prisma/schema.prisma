@@ -20,6 +20,7 @@ model ElectoralSlate {
   candidate2     String?   @map("candidate_2")
   electionId     Int       
   election Election @relation(fields: [electionId],references: [id])
+  votes Vote[]
   
   @@map("electoral_slate")
 }
@@ -30,4 +31,22 @@ model Election {
    maxVote    Int        @map("max_vote")
    slates ElectoralSlate[]
   @@map("election")    
+}
+
+model Token{
+     id             Int         @id @default(autoincrement())
+     dateExpiration DateTime    @map("date_expiration")
+     used           Int         @map("used")
+     hash           String      @map("hash")
+     votes Vote[]
+  @@map("token")  
+}
+
+model Vote{
+    id      Int          @id @default(autoincrement())
+    tokenId Int          @map("id_token")
+    token Token          @relation(fields: [tokenId],references: [id])
+    slateId Int          @map("slate_id")
+    slate ElectoralSlate @relation(fields: [slateId],references: [id])
+  @@map("vote")
 }
