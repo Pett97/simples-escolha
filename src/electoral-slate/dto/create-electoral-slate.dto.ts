@@ -1,6 +1,7 @@
-import { IsInt, IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsInt, IsString, IsOptional, IsNotEmpty, isNotEmpty, IsNumber, isInt } from 'class-validator';
 
 export class CreateElectoralSlateDto {
+  @IsNotEmpty({message: 'numberVote não pode vazio'})
   @IsInt({ message: 'numberVote :Número da chapa é obrigatório' })
   readonly numberVote: number;
 
@@ -11,4 +12,9 @@ export class CreateElectoralSlateDto {
   @IsOptional()
   @IsString({ message: "candidate2: Nome do candidato 2: apenas letras" })
   readonly candidate2?: string;
+
+  @IsNotEmpty({message: 'electionId não pode ser vazio'})
+  @IsInt({ message: 'electionId :Número da chapa é obrigatório' })
+  readonly electionId:number;
+
 }

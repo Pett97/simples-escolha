@@ -5,7 +5,7 @@ import { UpdateElectoralSlateDto } from './dto/update-electoral-slate.dto';
 
 @Controller('electoral-slate')
 export class ElectoralSlateController {
-  constructor(private readonly electoralSlateService: ElectoralSlateService) {}
+  constructor(private readonly electoralSlateService: ElectoralSlateService) { }
 
   @Post()
   create(@Body() createElectoralSlateDto: CreateElectoralSlateDto) {
@@ -20,6 +20,16 @@ export class ElectoralSlateController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.electoralSlateService.findOne(+id);
+  }
+
+  @Get('number-vote/:numberVote')
+  findByNumberVote(@Param('numberVote') numberVote: string) {
+    return this.electoralSlateService.findByNumberVote(+numberVote);
+  }
+  
+  @Get('by-election/:id')
+  findByElectionId(@Param('id') id:number){
+    return this.electoralSlateService.findByElectionId(+id);
   }
 
   @Patch(':id')
