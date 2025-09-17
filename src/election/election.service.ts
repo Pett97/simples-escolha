@@ -4,7 +4,8 @@ import { UpdateElectionDto } from './dto/update-election.dto';
 import { PrismaService } from 'src/database/prisma.service';
 import { Election, Token } from '@prisma/client';
 import { NanoIdService } from 'src/common/services/nanoIdService';
-
+import { customAlphabet } from 'nanoid';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ElectionService {
@@ -31,20 +32,41 @@ export class ElectionService {
     }
   }
 
+  //achei mais simples isso so para ter uma "segurança"
   async createTokensForElection(idElection: number) {
     return this.handleErrors(async () => {
       const maxVote = await this.getElectionMaxVote(idElection);
       const totalTokens = Number(maxVote) || 7000;
 
-      const tokensData:any = Array.from({ length: totalTokens }).map(() => ({
-        hash: this.nanoId.generateId(16),
-        used: 0,
-        electionId:idElection,
-        dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // teste 7 dias 
-      }));
+      const tokensData = Array.from({ length: totalTokens }).map(() => {
+        const { token, hash } = this.createRandonToken();
+        return {
+          token,
+          hash,
+          used: 0,
+          electionId: idElection,
+          dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+        };
+      });
 
       return this.prisma.token.createMany({ data: tokensData });
     }, 'erro ao criar tokens');
+  }
+
+  //para criar um para o usuario digitar acredito que 8 vai dar boa para testar
+  private createRandonToken(): { token: string, hash: string } {
+    const generateToken = customAlphabet(
+      '123456789ABCDEFGHJKLMNPQRSTUVWXYZ',
+      8
+    );
+    const token = generateToken();
+
+    const hash = crypto.createHash('sha256').update(token).digest('hex');
+
+    return {
+      token,
+      hash
+    }
   }
 
   async create(createElectionDto: CreateElectionDto): Promise<Election | { message: string }> {

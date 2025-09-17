@@ -38,8 +38,8 @@ model Token{
      id             Int         @id @default(autoincrement())
      dateExpiration DateTime    @map("date_expiration")
      used           Int         @map("used")
+     token          String      @map("token")
      hash           String      @map("hash")
-     votes Vote[]
      electionId     Int         @map("id_election")
      election Election          @relation(fields: [electionId],references: [id])
   @@map("token")  
@@ -47,9 +47,9 @@ model Token{
 
 model Vote{
     id      Int          @id @default(autoincrement())
-    tokenId Int          @map("id_token")
-    token Token          @relation(fields: [tokenId],references: [id])
+    hash    String       @map("hash")
     slateId Int          @map("slate_id")
+    numberVote Int       @map("number_vote")
     slate ElectoralSlate @relation(fields: [slateId],references: [id])
   @@map("vote")
 }
