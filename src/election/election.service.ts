@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Election } from '@prisma/client';
+import * as crypto from 'crypto';
+import { customAlphabet } from 'nanoid';
+import { NanoIdService } from 'src/common/services/nanoIdService';
+import { PrismaService } from 'src/database/prisma.service';
+
 import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
-import { PrismaService } from 'src/database/prisma.service';
-import { Election, Token } from '@prisma/client';
-import { NanoIdService } from 'src/common/services/nanoIdService';
-import { customAlphabet } from 'nanoid';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class ElectionService {
@@ -107,4 +108,34 @@ export class ElectionService {
       return this.prisma.election.delete({ where: { id } });
     }, `não possivel remover eleicao com id ${id}`);
   }
+
+  async getResultElection(idElection: number) {
+    return this.handleErrors(async () => {
+      const votosPorChapa = await this.prisma.vote.groupBy({
+        by: ['slateId'],
+        where: {
+          slate: { electionId: idElection },
+        },
+        _count: { _all: true },
+      });
+
+      const resultado = await Promise.all(
+        votosPorChapa.map(async (votoDaChapa) => {
+          const chapa = await this.prisma.electoralSlate.findUnique({
+            where: { id: votoDaChapa.slateId },
+          });
+
+          return {
+            numberVote: chapa?.numberVote,
+            candidate1: chapa?.candidate1,
+            candidate2: chapa?.candidate2,
+            totalVotes: votoDaChapa._count._all,
+          };
+        }),
+      );
+
+      return resultado;
+    });
+  }
+
 }
