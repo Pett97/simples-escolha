@@ -36,13 +36,13 @@ export class ElectionService {
   async createTokensForElection(idElection: number) {
     return this.handleErrors(async () => {
       const maxVote = await this.getElectionMaxVote(idElection);
-      const totalTokens = Number(maxVote) || 7000;
+      const totalTokens = Number(maxVote) || 50;
 
       const tokensData = Array.from({ length: totalTokens }).map(() => {
-        const { token, hash } = this.createRandonToken();
+        const { token, hashToken } = this.createRandonToken();
         return {
           token,
-          hash,
+          hashToken,
           used: 0,
           electionId: idElection,
           dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
@@ -54,18 +54,18 @@ export class ElectionService {
   }
 
   //para criar um para o usuario digitar acredito que 8 vai dar boa para testar
-  private createRandonToken(): { token: string, hash: string } {
+  private createRandonToken(): { token: string, hashToken: string } {
     const generateToken = customAlphabet(
       '123456789ABCDEFGHJKLMNPQRSTUVWXYZ',
       8
     );
     const token = generateToken();
 
-    const hash = crypto.createHash('sha256').update(token).digest('hex');
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
 
     return {
       token,
-      hash
+      hashToken
     }
   }
 
