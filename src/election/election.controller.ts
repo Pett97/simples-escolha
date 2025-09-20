@@ -22,6 +22,11 @@ export class ElectionController {
     return this.electionService.findOne(+id);
   }
 
+  @Get('resultado/:id')
+  getResultadoElectionByIdElection(@Param('id') id :string) {
+    return this.electionService.getResultElection(+id);
+  }
+
   @Get('election-date/:startDate/:endDate')
   findByDate(@Param() params: { startDate: string; endDate: string }) {
     return this.electionService.findByDateRange(params.startDate, params.endDate);
@@ -41,4 +46,5 @@ export class ElectionController {
   remove(@Param('id') id: string) {
     return this.electionService.remove(+id);
   }
+
 }
