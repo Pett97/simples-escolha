@@ -5,5 +5,6 @@ import { ElectoralSlateController } from './electoral-slate.controller';
 @Module({
   controllers: [ElectoralSlateController],
   providers: [ElectoralSlateService],
+  exports:[ElectoralSlateService]
 })
 export class ElectoralSlateModule {}

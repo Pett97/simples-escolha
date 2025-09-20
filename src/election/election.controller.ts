@@ -32,6 +32,11 @@ export class ElectionController {
     return this.electionService.update(+id, updateElectionDto);
   }
 
+  @Post('criar-tokens/:id')
+  createTokens(@Param('id') id: string) {
+    return this.electionService.createTokensForElection(+id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.electionService.remove(+id);
