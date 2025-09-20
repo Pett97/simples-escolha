@@ -3,4 +3,5 @@ export class ElectoralSlate {
    numberVote: number;
    candidate1: String;
    candidate2: String;
+   electionId: number;
 }
