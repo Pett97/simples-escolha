@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ElectionService } from './election.service';
 import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('election')
+@UseGuards(AuthGuard)
 export class ElectionController {
   constructor(private readonly electionService: ElectionService) { }
 
@@ -12,18 +15,21 @@ export class ElectionController {
     return this.electionService.create(createElectionDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.electionService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.electionService.findOne(+id);
   }
 
+  @Public()
   @Get('resultado/:id')
-  getResultadoElectionByIdElection(@Param('id') id :string) {
+  getResultadoElectionByIdElection(@Param('id') id: string) {
     return this.electionService.getResultElection(+id);
   }
 
@@ -46,5 +52,5 @@ export class ElectionController {
   remove(@Param('id') id: string) {
     return this.electionService.remove(+id);
   }
-
 }
+
