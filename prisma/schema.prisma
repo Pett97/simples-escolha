@@ -53,3 +53,9 @@ model Vote{
     slate ElectoralSlate @relation(fields: [slateId],references: [id])
   @@map("vote")
 }
+
+model User{
+  id Int @id @default(autoincrement())
+  name String 
+  password  String   
+}
