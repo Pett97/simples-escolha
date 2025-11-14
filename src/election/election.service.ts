@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Election } from '@prisma/client';
 import * as crypto from 'crypto';
 import { customAlphabet } from 'nanoid';
@@ -7,135 +7,201 @@ import { PrismaService } from 'src/database/prisma.service';
 
 import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
+import { FailCreateElection } from './fail-create-election';
+import { FailFindElection } from './fail-find-election';
+
 
 @Injectable()
 export class ElectionService {
+  constructor(private prisma: PrismaService) { }
 
-  constructor(private prisma: PrismaService, private nanoId: NanoIdService) { }
-
-  private async findByIdOrThrow(id: number): Promise<Election> {
-    return this.prisma.election.findFirstOrThrow({ where: { id } });
-  }
-
-  private async getElectionMaxVote(id: number): Promise<number | { message: string }> {
-    return this.handleErrors(async () => {
-      const election = await this.findByIdOrThrow(id);
-      return election.maxVote;
-    }, `não foi encontrada eleicao com id${id}`)
-  }
-
-  private async handleErrors<T>(fn: () => Promise<T>, message = 'Erro ao processar requisição'): Promise<T | { message: string }> {
-    try {
-      return await fn();
-    } catch (error) {
-      console.error(message, error);
-      return { message };
+  private async findOneElection(id: number): Promise<Election> {
+    if (!id) {
+      throw new NotFoundException("Para Buscar uma Eleição informe um id");
     }
+    return await this.prisma.election.findFirstOrThrow({ where: { id } });
+  }
+
+  private async getElectionMaxVote(id: number): Promise<number> {
+    if (!id) {
+      throw new BadRequestException("Para Buscar a quantidade maxima de votos informe um id valido ");
+    }
+
+    const election: Election = await this.findOneElection(id);
+    if (!election) {
+      throw new NotFoundException();
+    }
+
+    return election.maxVote;
   }
 
   //achei mais simples isso so para ter uma "segurança"
   async createTokensForElection(idElection: number) {
-    return this.handleErrors(async () => {
-      const maxVote = await this.getElectionMaxVote(idElection);
-      const totalTokens = Number(maxVote) || 50;
+    if (!idElection) {
+      throw new BadRequestException("Para criar os Token informe id eleicao");
+    }
 
-      const tokensData = Array.from({ length: totalTokens }).map(() => {
-        const { token, hashToken } = this.createRandonToken();
-        return {
-          token,
-          hashToken,
-          used: 0,
-          electionId: idElection,
-          dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
-        };
-      });
+    const maxVote = await this.getElectionMaxVote(idElection);
 
-      return this.prisma.token.createMany({ data: tokensData });
-    }, 'erro ao criar tokens');
+    if (!maxVote) {
+      throw new InternalServerErrorException("Erro ao buscar quantidade maxima de votos");
+    }
+
+    const tokens = Array.from({ length: maxVote }).map(() => {
+      const { token, hashToken } = this.createRandonToken();
+      return {
+        token,
+        hashToken,
+        used: 0,
+        electionId: idElection,
+        dateExpiration: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+      };
+    });
+
+    return this.saveTokens(tokens);
+  }
+
+  private async saveTokens(data) {
+    return this.prisma.token.createMany({ data });
   }
 
   //para criar um para o usuario digitar acredito que 8 vai dar boa para testar
   private createRandonToken(): { token: string, hashToken: string } {
-    const generateToken = customAlphabet(
-      '123456789ABCDEFGHJKLMNPQRSTUVWXYZ',
-      8
-    );
-    const token = generateToken();
-
+    const token = this.generateCustomToken();
     const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+    return { token, hashToken }
+  }
 
-    return {
-      token,
-      hashToken
+  private generateCustomToken(): string {
+    return customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 8)();
+  }
+
+  async create(createElectionDto: CreateElectionDto): Promise<Election> {
+
+    try {
+      return await this.prisma.election.create({ data: createElectionDto });
+    } catch (error) {
+      console.error(error);
+      throw new FailCreateElection();
     }
   }
 
-  async create(createElectionDto: CreateElectionDto): Promise<Election | { message: string }> {
-    return this.handleErrors(() => this.prisma.election.create({ data: createElectionDto }), 'erro ao criar eleicao');
+  async findAll(): Promise<Election[]> {
+    const data: Election[] = await this.prisma.election.findMany();
+
+    if (!data || data.length === 0) {
+      throw new NotFoundException("Nao foi possivel listar as eleicoes");
+    }
+
+    return data;
   }
 
-  async findAll(): Promise<Election[] | { message: string }> {
-    return this.handleErrors(() => this.prisma.election.findMany(), "não foi possivel buscar as eleicoes");
+  async findOne(id: number): Promise<Election> {
+    return this.findOneElection(id);
   }
 
-  async findOne(id: number): Promise<Election | { message: string }> {
-    return this.handleErrors(() => this.findByIdOrThrow(id), `não foi encontrado  nenhuma eleicao com esse ${id}`);
-  }
+  async findByDateRange(startDate: string, endDate: string): Promise<Election[]> {
+    if (!startDate || !endDate) {
+      throw new BadRequestException();
+    }
 
-  async findByDateRange(startDate: string, endDate: string): Promise<Election[] | { message: string }> {
-    return this.handleErrors(() =>
-      this.prisma.election.findMany({
+    try {
+      const data = await this.prisma.election.findMany({
         where: {
           votingDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          },
-        },
-      })
-    );
+            gte: startDate,
+            lte: endDate
+          }
+        }
+      });
+
+      if (!data || data.length === 0) {
+        throw new FailFindElection();
+      }
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 
-  async update(id: number, updateElectionDto: UpdateElectionDto): Promise<Election | { message: string }> {
-    return this.handleErrors(async () => {
-      await this.findByIdOrThrow(id);
-      return this.prisma.election.update({ where: { id }, data: updateElectionDto });
-    }, `erro ao atualizar eleicao com id ${id}`)
+  async update(id: number, updateElectionDto: UpdateElectionDto): Promise<Election> {
+
+    if (!id) {
+      throw new BadRequestException("Para atualizar uma eleicao é necessário informar um id");
+    }
+
+    try {
+      const election = await this.prisma.election.update({ where: { id }, data: updateElectionDto });
+
+      if (!election) {
+        throw new FailFindElection();
+      }
+
+      return election;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 
-  async remove(id: number): Promise<Election | { message: string }> {
-    return this.handleErrors(async () => {
-      await this.findByIdOrThrow(id);
-      return this.prisma.election.delete({ where: { id } });
-    }, `não possivel remover eleicao com id ${id}`);
+  async remove(id: number): Promise<Election> {
+
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    try {
+      const data = await this.prisma.election.delete({ where: { id } });
+      if (!data) {
+        throw new InternalServerErrorException(`Erro ao deletar eleicao com id ${id}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  private async getVotesByElectoralSlate(idElection: number) {
+    if (!idElection) {
+      throw new BadRequestException("Não é possivel buscar resultado sem informar uma eleicao");
+    }
+
+    const votesByElectoralSlate = await this.prisma.vote.groupBy({
+      by: ['slateId'],
+      where: {
+        slate: { electionId: idElection },
+      }, _count: { _all: true },
+    });
+
+    return votesByElectoralSlate;
   }
 
   async getResultElection(idElection: number) {
-    return this.handleErrors(async () => {
-      const votosPorChapa = await this.prisma.vote.groupBy({
-        by: ['slateId'],
-        where: {
-          slate: { electionId: idElection },
-        },
-        _count: { _all: true },
-      });
+    const votes = await this.getVotesByElectoralSlate(idElection);
 
-      const resultado = await Promise.all(
-        votosPorChapa.map(async (votoDaChapa) => {
-          const chapa = await this.prisma.electoralSlate.findUnique({
-            where: { id: votoDaChapa.slateId },
-          });
+    const result = await Promise.all(
+      votes.map(async (vote) => {
+        const chapa = await this.prisma.electoralSlate.findUnique({
+          where: { id: vote.slateId }
+        });
 
-          return {
-            numberVote: chapa?.numberVote,
-            candidate1: chapa?.candidate1,
-            candidate2: chapa?.candidate2,
-            totalVotes: votoDaChapa._count._all,
-          };
-        }),
-      );
+        return {
+          numberVote: chapa?.numberVote,
+          candidate1: chapa?.candidate1,
+          candidate2: chapa?.candidate2,
+          totalVotes: vote._count._all,
+        };
+      })
+    );
 
-      return resultado;
-    });
+    return result;
   }
+
+
+
 
 }
