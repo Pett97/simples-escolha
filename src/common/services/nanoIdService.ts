@@ -1,11 +1,11 @@
-
 import { Injectable } from "@nestjs/common";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 
-//seria para ter um FACADES digamos do laravel
 @Injectable()
 export class NanoIdService {
-   generateId(size = 21): string {
-      return nanoid(size);
+   private readonly generator = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8);
+
+   generate(): string {
+      return this.generator();
    }
 }
