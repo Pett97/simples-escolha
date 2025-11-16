@@ -3,6 +3,7 @@ import { NanoIdService } from 'src/common/services/nanoIdService';
 import { PrismaService } from 'src/database/prisma.service';
 
 import { ElectionService } from './election.service';
+import { NotFoundException } from '@nestjs/common';
 
 jest.mock("nanoid", () => ({
   customAlphabet: () => () => "MOCK_ID",
@@ -37,6 +38,7 @@ describe('ElectionService', () => {
   let service: ElectionService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ElectionService,
@@ -72,6 +74,16 @@ describe('ElectionService', () => {
         where: { id: 2 },
       });
     });
+
+    it("should throw NotFoundException when election does not exist", async () => {
+      mockPrismaService.election.findFirstOrThrow.mockRejectedValue(new NotFoundException());
+
+      await expect(service.findOne(3)).rejects.toThrow(NotFoundException);
+      expect(mockPrismaService.election.findFirstOrThrow).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.election.findFirstOrThrow).toHaveBeenCalledWith({
+        where: { id: 3 },
+      });
+    });
   });
 
   describe("findAll()", () => {
@@ -87,6 +99,82 @@ describe('ElectionService', () => {
 
       expect(result).toEqual(mockElections);
       expect(mockPrismaService.election.findMany).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return a empty array when list is empty", async () => {
+      const mockElection = [];
+
+      mockPrismaService.election.findMany.mockResolvedValue(mockElection);
+
+      await expect(service.findAll()).rejects.toThrow(NotFoundException);
+      expect(mockPrismaService.election.findMany).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('create()', () => {
+    it("can be create a wonderfull election", async () => {
+      const dto = { votingDate: new Date("2025-05-05"), maxVote: 250 };
+
+      const createdElection = {
+        id: 1,
+        ...dto,
+      };
+
+      mockPrismaService.election.create.mockResolvedValue(createdElection);
+
+      const result = await service.create(dto);
+
+      expect(mockPrismaService.election.create).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.election.create).toHaveBeenCalledWith({
+        data: dto,
+      });
+
+      expect(result).toEqual(createdElection);
+    });
+
+  });
+
+  describe("update()", () => {
+    it("should update an election successfully", async () => {
+      const dto = { votingDate: new Date("2025-10-10"), maxVote: 500 };
+
+      const updatedElection = {
+        id: 1,
+        ...dto,
+      };
+
+      mockPrismaService.election.update.mockResolvedValue(updatedElection);
+
+      const result = await service.update(1, dto);
+
+      expect(mockPrismaService.election.update).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.election.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: dto,
+      });
+
+      expect(result).toEqual(updatedElection);
+    });
+  });
+
+  describe("delete()", () => {
+    it("should delete an election successfully", async () => {
+      const deletedElection = {
+        id: 1,
+        votingDate: new Date("2025-05-05"),
+        maxVote: 250,
+      };
+
+      mockPrismaService.election.delete.mockResolvedValue(deletedElection);
+
+      const result = await service.remove(1);
+
+      expect(mockPrismaService.election.delete).toHaveBeenCalledTimes(1);
+      expect(mockPrismaService.election.delete).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
+
+      expect(result).toEqual(deletedElection);
     });
   });
 
