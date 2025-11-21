@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Election } from '@prisma/client';
 import * as crypto from 'crypto';
-import { customAlphabet } from 'nanoid';
 import { NanoIdService } from 'src/common/services/nanoIdService';
 import { PrismaService } from 'src/database/prisma.service';
 
@@ -13,7 +12,7 @@ import { FailFindElection } from './fail-find-election';
 
 @Injectable()
 export class ElectionService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService,private nanoId : NanoIdService) { }
 
   private async findOneElection(id: number): Promise<Election> {
     if (!id) {
@@ -73,7 +72,7 @@ export class ElectionService {
   }
 
   private generateCustomToken(): string {
-    return customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 8)();
+    return this.nanoId.generate();
   }
 
   async create(createElectionDto: CreateElectionDto): Promise<Election> {
