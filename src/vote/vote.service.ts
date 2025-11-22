@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { ElectoralSlate, Vote } from '@prisma/client';
 import * as crypto from 'crypto';
 import { PrismaService } from 'src/database/prisma.service';

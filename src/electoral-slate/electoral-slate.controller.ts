@@ -2,13 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { ElectoralSlateService } from './electoral-slate.service';
 import { CreateElectoralSlateDto } from './dto/create-electoral-slate.dto';
 import { UpdateElectoralSlateDto } from './dto/update-electoral-slate.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('electoral-slate')
 export class ElectoralSlateController {
   constructor(private readonly electoralSlateService: ElectoralSlateService) { }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createElectoralSlateDto: CreateElectoralSlateDto) {
     return this.electoralSlateService.create(createElectoralSlateDto);
@@ -34,7 +34,7 @@ export class ElectoralSlateController {
     return this.electoralSlateService.findByElectionId(+id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateElectoralSlateDto: UpdateElectoralSlateDto) {
     return this.electoralSlateService.update(+id, updateElectoralSlateDto);
