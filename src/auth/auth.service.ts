@@ -1,19 +1,70 @@
-
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from 'src/database/prisma.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService, private jwtService: JwtService) { }
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService
+  ) { }
 
-  async signIn(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
-      throw new UnauthorizedException();
+  async createUser(createUserDto: CreateUserDto): Promise<any> {
+    const { name, login, password } = createUserDto;
+    const checkLogin = await this.prisma.user.findUnique({
+      where: { login },
+    });
+
+    if (checkLogin) {
+      throw new ConflictException("Login já está em uso");
     }
-    const payload = { sub: user.userId, username: user.username };
+
+    // Hash da senha
+    const hashPwd = await bcrypt.hash(password, 10);
+
+    // Criação do usuário (não retorna a senha)
+    const newUser = await this.prisma.user.create({
+      data: {
+        name,
+        login,
+        password: hashPwd,
+      },
+      select: {
+        id: true,
+        name: true,
+        login: true,
+      },
+    });
+
+    return newUser;
+  }
+
+  async login(login: string, password: string) {
+    if(!login || !password){
+       throw new BadRequestException( );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { login },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException("Credenciais inválidas");
+    }
+
+    const pwdMatch = await bcrypt.compare(password, user.password);
+
+    if (!pwdMatch) {
+      throw new UnauthorizedException("Credenciais inválidas");
+    }
+
+    const payload = { sub: user.id, login: user.login };
+    const token = await this.jwtService.signAsync(payload);
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: token,
     };
   }
 }

@@ -5,7 +5,10 @@ export class CreateUserDto {
   @IsString({ message: "name:Nome apenas letras" })
   readonly name: string;
 
-  @IsNotEmpty({message:"password não pode ser vazio"})
-  @MinLength(8,{message:"senha deve ter no minimo oito caracteres"})
-  readonly password: String;
+  @IsNotEmpty({ message: "password não pode ser vazio" })
+  @MinLength(8, { message: "password deve ter no minimo oito caracteres" })
+  readonly password: string;
+
+  @IsNotEmpty({ message: "login não pode vazio" })
+  readonly login: string;
 }

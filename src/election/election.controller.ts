@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { ElectionService } from './election.service';
 import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/public.decorator';
 
 @Controller('election')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ElectionController {
   constructor(private readonly electionService: ElectionService) { }
 
