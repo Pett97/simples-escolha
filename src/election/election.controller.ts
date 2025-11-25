@@ -4,13 +4,15 @@ import { CreateElectionDto } from './dto/create-election.dto';
 import { UpdateElectionDto } from './dto/update-election.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/public.decorator';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('election')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard,RolesGuard)
 export class ElectionController {
   constructor(private readonly electionService: ElectionService) { }
-
   @Post()
+  @Roles('ADMIN')
   create(@Body() createElectionDto: CreateElectionDto) {
     return this.electionService.create(createElectionDto);
   }
@@ -38,6 +40,7 @@ export class ElectionController {
     return this.electionService.findByDateRange(params.startDate, params.endDate);
   }
 
+  @Roles('ADMIN')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateElectionDto: UpdateElectionDto) {
     return this.electionService.update(+id, updateElectionDto);

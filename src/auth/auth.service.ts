@@ -12,7 +12,7 @@ export class AuthService {
   ) { }
 
   async createUser(createUserDto: CreateUserDto): Promise<any> {
-    const { name, login, password } = createUserDto;
+    const { name, login, password, role } = createUserDto;
     const checkLogin = await this.prisma.user.findUnique({
       where: { login },
     });
@@ -30,6 +30,7 @@ export class AuthService {
         name,
         login,
         password: hashPwd,
+        role: role
       },
       select: {
         id: true,
@@ -42,8 +43,8 @@ export class AuthService {
   }
 
   async login(login: string, password: string) {
-    if(!login || !password){
-       throw new BadRequestException( );
+    if (!login || !password) {
+      throw new BadRequestException();
     }
 
     const user = await this.prisma.user.findUnique({
@@ -60,7 +61,7 @@ export class AuthService {
       throw new UnauthorizedException("Credenciais inválidas");
     }
 
-    const payload = { sub: user.id, login: user.login };
+    const payload = { sub: user.id, login: user.login, role: user.role};
     const token = await this.jwtService.signAsync(payload);
 
     return {
