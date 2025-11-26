@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateUserDto {
@@ -11,4 +12,7 @@ export class CreateUserDto {
 
   @IsNotEmpty({ message: "login não pode vazio" })
   readonly login: string;
+
+  @IsNotEmpty({ message: "tipo ususario não pode ser vazio" })
+  readonly role: Role
 }
