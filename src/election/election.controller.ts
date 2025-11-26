@@ -8,7 +8,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('election')
-@UseGuards(JwtAuthGuard,RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ElectionController {
   constructor(private readonly electionService: ElectionService) { }
   @Post()
@@ -46,11 +46,13 @@ export class ElectionController {
     return this.electionService.update(+id, updateElectionDto);
   }
 
+  @Roles('ADMIN')
   @Post('criar-tokens/:id')
   createTokens(@Param('id') id: string) {
     return this.electionService.createTokensForElection(+id);
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.electionService.remove(+id);
