@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsOptional, IsNotEmpty, isNotEmpty, IsNumber, isInt } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateElectoralSlateDto {
   @IsNotEmpty({message: 'numberVote não pode vazio'})

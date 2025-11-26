@@ -1,9 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/database/prisma.service';
@@ -11,10 +7,6 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService
-  ) { }
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService
@@ -70,12 +62,11 @@ export class AuthService {
       throw new UnauthorizedException("Credenciais inválidas");
     }
 
-    const payload = { sub: user.id, login: user.login, role: user.role};
+    const payload = { sub: user.id, login: user.login, role: user.role };
     const token = await this.jwtService.signAsync(payload);
 
     return {
-      access_token: token,
-      access_token: token,
+      access_token: token
     };
   }
 }

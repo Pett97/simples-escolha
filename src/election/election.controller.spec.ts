@@ -4,7 +4,7 @@ import { UpdateElectionDto } from './dto/update-election.dto';
 import { ElectionController } from './election.controller';
 import { ElectionService } from './election.service';
 import { NanoIdService } from 'src/common/services/nanoIdService';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 // Mock do nanoid (garantia)
 jest.mock("nanoid", () => ({
