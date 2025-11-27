@@ -30,7 +30,7 @@ export class ElectionController {
   }
 
   @Public()
-  @Get('resultado/:id')
+  @Get('result/:id')
   getResultadoElectionByIdElection(@Param('id') id: string) {
     return this.electionService.getResultElection(+id);
   }
@@ -47,7 +47,7 @@ export class ElectionController {
   }
 
   @Roles('ADMIN')
-  @Post('criar-tokens/:id')
+  @Post('create-tokens/:id')
   createTokens(@Param('id') id: string) {
     return this.electionService.createTokensForElection(+id);
   }
