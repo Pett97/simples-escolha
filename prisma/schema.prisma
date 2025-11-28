@@ -37,7 +37,7 @@ model Election {
    maxVote    Int        @map("max_vote")
    slates ElectoralSlate[]
    tokens Token[]
-  @@map("election")    
+  @@map("elections")    
 }
 
 model Token{
@@ -48,7 +48,7 @@ model Token{
      hashToken      String      @unique @map("hash_token")
      electionId     Int         @map("id_election")
      election Election          @relation(fields: [electionId],references: [id])
-  @@map("token")  
+  @@map("tokens")  
 }
 
 model Vote{
@@ -57,7 +57,7 @@ model Vote{
     slateId Int          @map("slate_id")
     numberVote Int       @map("number_vote")
     slate ElectoralSlate @relation(fields: [slateId],references: [id])
-  @@map("vote")
+  @@map("votes")
 }
 
 model User{
@@ -65,5 +65,6 @@ model User{
   login String @unique
   name String  
   password  String
-  role Role   
+  role Role
+  @@map("users")   
 }

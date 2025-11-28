@@ -1,0 +1,595 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/electoral-slate": {
+      "post": {
+        "operationId": "ElectoralSlateController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateElectoralSlateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Criar uma nova chapa eleitoral (ADMIN)",
+        "tags": [
+          "electoral-slate"
+        ]
+      },
+      "get": {
+        "operationId": "ElectoralSlateController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Listar todas as chapas eleitorais (Autenticado)",
+        "tags": [
+          "electoral-slate"
+        ]
+      }
+    },
+    "/electoral-slate/{id}": {
+      "get": {
+        "operationId": "ElectoralSlateController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Buscar chapa eleitoral por ID (Autenticado)",
+        "tags": [
+          "electoral-slate"
+        ]
+      },
+      "patch": {
+        "operationId": "ElectoralSlateController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateElectoralSlateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Atualizar uma chapa eleitoral (ADMIN)",
+        "tags": [
+          "electoral-slate"
+        ]
+      },
+      "delete": {
+        "operationId": "ElectoralSlateController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Remover uma chapa eleitoral (ADMIN)",
+        "tags": [
+          "electoral-slate"
+        ]
+      }
+    },
+    "/electoral-slate/number-vote/{numberVote}": {
+      "get": {
+        "operationId": "ElectoralSlateController_findByNumberVote",
+        "parameters": [
+          {
+            "name": "numberVote",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Buscar chapa eleitoral pelo número de voto (Autenticado)",
+        "tags": [
+          "electoral-slate"
+        ]
+      }
+    },
+    "/electoral-slate/by-election/{id}": {
+      "get": {
+        "operationId": "ElectoralSlateController_findByElectionId",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Listar chapas de uma eleição pelo ID da eleição (Autenticado)",
+        "tags": [
+          "electoral-slate"
+        ]
+      }
+    },
+    "/election": {
+      "post": {
+        "operationId": "ElectionController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateElectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Criar uma nova eleição (ADMIN)",
+        "tags": [
+          "election"
+        ]
+      },
+      "get": {
+        "operationId": "ElectionController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Listar todas as eleições (Público)",
+        "tags": [
+          "election"
+        ]
+      }
+    },
+    "/election/result/{id}": {
+      "get": {
+        "operationId": "ElectionController_getResultadoElectionByIdElection",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Buscar resultado da eleição pelo ID (Público)",
+        "tags": [
+          "election"
+        ]
+      }
+    },
+    "/election/election-date/{startDate}/{endDate}": {
+      "get": {
+        "operationId": "ElectionController_findByDate",
+        "parameters": [
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "path",
+            "description": "Data final (YYYY-MM-DD)",
+            "schema": {
+              "example": "2025-12-31",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "path",
+            "description": "Data inicial (YYYY-MM-DD)",
+            "schema": {
+              "example": "2025-01-01",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Buscar eleições entre duas datas (Autenticado)",
+        "tags": [
+          "election"
+        ]
+      }
+    },
+    "/election/{id}": {
+      "get": {
+        "operationId": "ElectionController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Buscar eleição por ID (Público)",
+        "tags": [
+          "election"
+        ]
+      },
+      "patch": {
+        "operationId": "ElectionController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateElectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Atualizar eleição por ID (ADMIN)",
+        "tags": [
+          "election"
+        ]
+      },
+      "delete": {
+        "operationId": "ElectionController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Remover eleição por ID (ADMIN)",
+        "tags": [
+          "election"
+        ]
+      }
+    },
+    "/election/create-tokens/{id}": {
+      "post": {
+        "operationId": "ElectionController_createTokens",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Gerar tokens para a eleição especificada (ADMIN)",
+        "tags": [
+          "election"
+        ]
+      }
+    },
+    "/vote": {
+      "post": {
+        "description": "Permite que um usuário autenticado registre um voto usando um hash válido.",
+        "operationId": "VoteController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Voto registrado com sucesso."
+          },
+          "400": {
+            "description": "Erro de validação ou voto inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "403": {
+            "description": "Usuário sem permissão (precisa ser USER)."
+          }
+        },
+        "summary": "Registrar um voto (USER)",
+        "tags": [
+          "vote"
+        ]
+      }
+    },
+    "/auth/create": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Criar um novo usuário",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Login do usuário",
+        "tags": [
+          "auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Simples Escolhas",
+    "description": "Uma api para gerenciamento de pequenas eleições",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": ""
+    },
+    {
+      "name": "election",
+      "description": ""
+    },
+    {
+      "name": "electoral-slate",
+      "description": ""
+    },
+    {
+      "name": "user",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CreateElectoralSlateDto": {
+        "type": "object",
+        "properties": {
+          "numberVote": {
+            "type": "number",
+            "description": "Número da chapa",
+            "example": 10
+          },
+          "candidate1": {
+            "type": "string",
+            "description": "Nome do candidato 1 (obrigatório)",
+            "example": "João Silva"
+          },
+          "candidate2": {
+            "type": "string",
+            "description": "Nome do candidato 2 (opcional)",
+            "example": "Maria Souza"
+          },
+          "electionId": {
+            "type": "number",
+            "description": "ID da eleição vinculada",
+            "example": 1
+          }
+        },
+        "required": [
+          "numberVote",
+          "candidate1",
+          "electionId"
+        ]
+      },
+      "UpdateElectoralSlateDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateElectionDto": {
+        "type": "object",
+        "properties": {
+          "votingDate": {
+            "type": "string",
+            "example": "2025-12-10T15:00:00.000Z",
+            "description": "Data da votação (ISO String)"
+          },
+          "maxVote": {
+            "type": "number",
+            "example": 3,
+            "description": "Número máximo de votos permitidos"
+          }
+        },
+        "required": [
+          "votingDate",
+          "maxVote"
+        ]
+      },
+      "UpdateElectionDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateVoteDto": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string",
+            "description": "Hash único para validar o voto",
+            "example": "a8726c1b92f14e3b9f8a12e87d91f3c2"
+          },
+          "numberVote": {
+            "type": "number",
+            "description": "Número da chapa escolhida",
+            "example": 12
+          }
+        },
+        "required": [
+          "hash",
+          "numberVote"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Mario Silva",
+            "description": "Nome completo do usuário"
+          },
+          "password": {
+            "type": "string",
+            "example": "senhaforte123",
+            "description": "Senha (mínimo 8 caracteres)",
+            "writeOnly": true
+          },
+          "login": {
+            "type": "string",
+            "example": "mario",
+            "description": "Login único do usuário"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ADMIN"
+            ],
+            "example": "USER",
+            "description": "Papel/role do usuário"
+          }
+        },
+        "required": [
+          "name",
+          "password",
+          "login",
+          "role"
+        ]
+      }
+    }
+  }
+}
